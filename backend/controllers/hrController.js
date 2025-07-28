@@ -1,7 +1,7 @@
 const Resignation = require("../models/Resignation");
 const Interview = require("../models/Interview");
 const nodemailer = require("../utils/mailer");
-
+const Response = require("../models/Response");
 exports.getPendingResignations = async (req, res) => {
   try {
     const resignations = await Resignation.find({ status: "pending" }).populate("employeeId", "username");
@@ -13,21 +13,30 @@ exports.getPendingResignations = async (req, res) => {
 
 exports.processResignation = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { status } = req.body;
-    if (!status || !["approved", "rejected"].includes(status)) {
-      return res.status(400).json({ message: "Invalid status" });
+    const { resignationId, approved, lwd } = req.body;
+
+    if (typeof approved !== "boolean") {
+      return res.status(400).json({ message: "Invalid approval value" });
     }
 
-    const updated = await Resignation.findByIdAndUpdate(id, { status }, { new: true });
+    const status = approved ? "approved" : "rejected";
+
+    const updated = await Resignation.findByIdAndUpdate(
+      resignationId,
+      { status, lwd },
+      { new: true }
+    );
+
     if (!updated) return res.status(404).json({ message: "Resignation not found" });
 
     await nodemailer.notifyEmployee(updated.employeeId, status);
+
     res.status(200).json({ message: `Resignation ${status}` });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 exports.scheduleInterview = async (req, res) => {
   try {
@@ -37,6 +46,15 @@ exports.scheduleInterview = async (req, res) => {
     await interview.save();
 
     res.status(200).json({ message: "Interview scheduled" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.getExitResponses = async (req, res) => {
+  try {
+    const data = await Response.find().populate("employeeId", "email _id");
+    res.status(200).json({ data });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }

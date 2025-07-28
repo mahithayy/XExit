@@ -14,7 +14,12 @@ exports.submitResignation = async (req, res) => {
     const resignation = new Resignation({ employeeId: userId, lwd, status: "pending" });
     await resignation.save();
 
-    res.status(200).json({ data: { resignation: { _id: resignation._id } } });
+    res.status(200).json({
+  message: "Resignation submitted successfully",
+  resignation: { _id: resignation._id }
+});
+
+
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
@@ -28,7 +33,7 @@ exports.submitQuestionnaire = async (req, res) => {
     const record = new Questionnaire({ employeeId: userId, responses });
     await record.save();
 
-    res.status(200).json({ message: "Exit questionnaire submitted successfully" });
+    res.status(200).json({ message: "Responses submitted" });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }

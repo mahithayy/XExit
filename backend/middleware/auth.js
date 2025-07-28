@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+const User = require("../models/user");
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
@@ -12,12 +12,10 @@ const authenticateToken = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    // If admin
-    if (decoded.username === "admin") {
-      req.user = { role: "admin", username: "admin" };
+    if (decoded.userId === "admin") {
+      req.user = { role: "hr", _id: "admin", email: "admin" };
     } else {
-      // Regular employee
-      const user = await User.findById(decoded.id);
+      const user = await User.findById(decoded.userId);
       if (!user) return res.status(401).json({ message: "User not found" });
       req.user = user;
     }
@@ -27,6 +25,7 @@ const authenticateToken = async (req, res, next) => {
     res.status(403).json({ message: "Invalid token" });
   }
 };
+
 
 // Only for employees
 const authenticateEmployee = async (req, res, next) => {
