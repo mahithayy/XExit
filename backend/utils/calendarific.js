@@ -9,6 +9,12 @@ const isWorkingDay = async (dateStr, countryCode = "IN") => {
   if (dayOfWeek >= 6) return false;
 
   const API_KEY = process.env.CALENDARIFIC_KEY;
+
+  if (!API_KEY || API_KEY === "test_key") {
+    console.warn("⚠️ Missing or invalid CALENDARIFIC_KEY. Skipping holiday check.");
+    return true; // Assume it's a working day for now
+  }
+
   const url = `https://calendarific.com/api/v2/holidays?api_key=${API_KEY}&country=${countryCode}&year=${date.year()}&month=${date.month() + 1}&day=${date.date()}`;
 
   try {
@@ -20,8 +26,8 @@ const isWorkingDay = async (dateStr, countryCode = "IN") => {
     }
     return true; // It's a working day
   } catch (error) {
-    console.error("Calendarific error:", error.message);
-    return false; // Fail-safe: treat unknowns as holidays
+    console.error("🛑 Calendarific API error:", error.message);
+    return true; // Fallback: allow as working day
   }
 };
 

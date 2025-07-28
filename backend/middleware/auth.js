@@ -12,8 +12,10 @@ const authenticateToken = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    if (decoded.userId === "admin") {
-      req.user = { role: "hr", _id: "admin", email: "admin" };
+   if (decoded.userId === "admin") {
+  req.user = { _id: "admin", email: "admin", role: "hr" };
+
+
     } else {
       const user = await User.findById(decoded.userId);
       if (!user) return res.status(401).json({ message: "User not found" });
@@ -40,12 +42,13 @@ const authenticateEmployee = async (req, res, next) => {
 // Only for admin
 const authenticateAdmin = async (req, res, next) => {
   await authenticateToken(req, res, () => {
-    if (req.user.role !== "admin") {
+    if (req.user.role !== "hr") {
       return res.status(403).json({ message: "Only admin can access" });
     }
     next();
   });
 };
+
 
 module.exports = {
   authenticateToken,
