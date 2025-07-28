@@ -5,6 +5,8 @@ const nodemailer = require("../utils/mailer");
 
 exports.submitResignation = async (req, res) => {
   try {
+    console.log("Incoming resignation request");
+
     const { lwd, reason = "No reason provided" } = req.body;
 
     const isValid = await isWorkingDay(lwd);
@@ -26,7 +28,11 @@ exports.submitResignation = async (req, res) => {
       resignation: { _id: resignation._id },
     });
   } catch (err) {
-    console.error("Submit resignation error:", err.message);
+    console.error("Submit resignation error:", err);
+    console.error("Submit resignation error:", err);
+  console.error("Request body:", req.body);
+  console.error("User making request:", req.user);
+
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -34,7 +40,9 @@ exports.submitResignation = async (req, res) => {
 
 exports.submitQuestionnaire = async (req, res) => {
   try {
-    const userId = req.user.userId;
+    //const userId = req.user.userId;
+    const userId = req.user._id;
+
     const { responses } = req.body;
 
     const record = new Questionnaire({ employeeId: userId, responses });

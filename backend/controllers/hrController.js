@@ -5,7 +5,9 @@ const Response = require("../models/Response");
 exports.getPendingResignations = async (req, res) => {
   try {
     const resignations = await Resignation.find({ status: "pending" }).populate("employeeId", "username");
-    res.status(200).json({ data: { resignations } });
+    //res.status(200).json({ data: { resignations } });
+    res.status(200).json(resignations);
+
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
@@ -54,7 +56,7 @@ exports.scheduleInterview = async (req, res) => {
 exports.getExitResponses = async (req, res) => {
   try {
     const data = await Response.find().populate("employeeId", "email _id");
-    res.status(200).json({ data });
+    res.status(200).json(responses);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
